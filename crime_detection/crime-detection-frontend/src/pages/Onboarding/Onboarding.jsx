@@ -6,6 +6,7 @@ import useAuth from "../../hooks/useAuth";
 import UserInfoStep from "./steps/UserInfoStep";
 import EmergencyStep from "./steps/EmergencyStep";
 import CameraStep from "./steps/CameraStep";
+import userService from "../../services/userService";
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -36,10 +37,21 @@ export default function Onboarding() {
 
   const back = () => setStep((prev) => prev - 1);
 
-  const finishSetup = () => {
-    console.log(formData);
-
-    navigate("/dashboard");
+  const finishSetup = async () => {
+    try {
+      await userService.saveOnboarding({
+        firebase_uid: user.uid,
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        emergency_phone: formData.emergencyPhone || null,
+        emergency_email: formData.emergencyEmail || null,
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      alert("We could not save your setup. Please try again.");
+    }
   };
 
   return (

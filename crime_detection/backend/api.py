@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 import time
 import cv2
+import threading
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,10 +16,22 @@ from sqlalchemy.orm import Session
 
 from backend.database import get_db
 from backend.models import Incident
+from backend.models import User
+from backend.alert_service import alert_service
+from pydantic import BaseModel
 
 from fastapi.staticfiles import StaticFiles
 
 pipeline = CrimeDetectionPipeline()
+
+
+class OnboardingProfile(BaseModel):
+    firebase_uid: str
+    name: str
+    email: str
+    phone: str
+    emergency_phone: str | None = None
+    emergency_email: str | None = None
 
 
 @asynccontextmanager
@@ -63,6 +76,32 @@ def health():
     return {
         "status": "healthy"
     }
+
+
+@app.post("/users/onboarding")
+def save_onboarding(profile: OnboardingProfile, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.firebase_uid == profile.firebase_uid).first()
+    if user is None:
+        user = db.query(User).filter(User.email == profile.email).first()
+
+    is_new = user is None
+    if is_new:
+        user = User(firebase_uid=profile.firebase_uid, email=profile.email)
+        db.add(user)
+
+    user.firebase_uid = profile.firebase_uid
+    user.name = profile.name
+    user.email = profile.email
+    user.phone = profile.phone
+    user.emergency_phone = profile.emergency_phone
+    user.emergency_email = profile.emergency_email
+    db.commit()
+    db.refresh(user)
+
+    if is_new:
+        threading.Thread(target=alert_service.send_surveillance_started, args=(user,), daemon=True).start()
+
+    return {"success": True, "is_new": is_new}
 
 
 @app.get("/status")

@@ -1,11 +1,13 @@
 from datetime import datetime
 import os
 import cv2
+import threading
 
 from backend.shared import shared
 
 from backend.database import SessionLocal
 from backend.models import Incident
+from backend.alert_service import alert_service
 
 
 class IncidentManager:
@@ -137,6 +139,12 @@ class IncidentManager:
             db.refresh(incident)
 
             self.active_incident_id = incident.id
+
+            threading.Thread(
+                target=alert_service.send_anomaly_alert,
+                args=(incident.id, prediction, float(confidence)),
+                daemon=True,
+            ).start()
 
             print(
                 f"🚨 Incident Created #{incident.id}"
