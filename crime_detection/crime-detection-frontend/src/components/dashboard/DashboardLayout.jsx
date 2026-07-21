@@ -9,8 +9,8 @@ import ProcessingCard from "./ProcessingCard";
 import AlertsPanel from "./AlertsPanel";
 import Timeline from "./Timeline";
 
-import AlertPopup from "../AlertPopup";
-import IncidentHistory from "../IncidentHistory";
+// import AlertPopup from "../AlertPopup";
+// import IncidentHistory from "../IncidentHistory";
 
 export default function DashboardLayout() {
 

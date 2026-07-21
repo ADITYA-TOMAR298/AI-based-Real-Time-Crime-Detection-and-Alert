@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getIncidentHistory } from "@/services/incidentService";
+import { getIncidentHistory } from "../../services/incidentService";
 
 export default function Timeline() {
 

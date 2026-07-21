@@ -8,7 +8,7 @@ import {
 import {
   getActiveIncident,
   acknowledgeIncident,
-} from "@/services/incidentService";
+} from "../../services/incidentService";
 
 export default function AlertsPanel() {
 

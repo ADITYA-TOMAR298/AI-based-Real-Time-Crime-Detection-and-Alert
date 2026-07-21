@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getStatus } from "@/services/statusService";
+import { getStatus } from "../../services/statusService";
 
 export default function CameraSetup() {
 
