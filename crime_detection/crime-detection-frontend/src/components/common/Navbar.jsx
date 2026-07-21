@@ -13,7 +13,7 @@ export default function Navbar() {
           <Shield className="text-red-500" size={32} />
 
           <span className="text-2xl font-bold">
-            CrimeDetect AI
+            AI Crime Detection
           </span>
         </Link>
 

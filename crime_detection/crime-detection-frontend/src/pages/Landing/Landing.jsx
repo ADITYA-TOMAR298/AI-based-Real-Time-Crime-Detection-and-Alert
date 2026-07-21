@@ -21,16 +21,20 @@ export default function Landing() {
 
           <Shield className="w-20 h-20 mx-auto text-red-500 mb-6" />
 
-          <h1 className="text-6xl font-bold mb-6">
-            AI Crime Detection
+          <h1 className="text-5xl font-bold mb-6">
+            AI CRIME DETECTION
           </h1>
+
+          <br />
 
           <p className="text-xl text-slate-400 max-w-3xl mx-auto">
 
             Real-time surveillance powered by Artificial Intelligence for
-            anomaly detection, crime prevention, and instant emergency alerts.
+            anomaly detection and instant emergency alerts.
 
           </p>
+
+          <br />
 
           <Link to="/login">
 
