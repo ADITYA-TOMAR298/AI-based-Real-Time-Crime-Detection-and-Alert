@@ -21,7 +21,8 @@
    ```
 
 2. Copy the resulting service URL into Vercel as `VITE_API_URL`, then redeploy Vercel. The backend derives its own public URL from the incoming Cloud Run request; `PUBLIC_API_URL` is optional.
-3. To enable live CCTV detection, redeploy with a publicly reachable RTSP source and `PIPELINE_ENABLED=true`. A computer webcam cannot be accessed from Cloud Run.
+3. To enable live CCTV detection, redeploy with a publicly reachable RTSP source and `PIPELINE_ENABLED=true`.
+4. To use the dashboard user's webcam instead, redeploy with `CAMERA_SOURCE=browser`, `PIPELINE_ENABLED=true`, `--timeout 3600`, `--concurrency 8`, and `--max-instances 1`. The dashboard asks for browser camera permission and sends JPEG frames over a reconnecting WebSocket. The browser must remain open; Cloud Run WebSocket connections time out after at most 60 minutes and reconnect automatically. The single-instance limit keeps webcam frames and the in-memory model pipeline together.
 
 ## Cost reality
 

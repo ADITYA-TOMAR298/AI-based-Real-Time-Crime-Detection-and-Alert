@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PORT=8080 \
+    PORT=7860 \
     DATA_DIR=/tmp/crime_detection
 
 WORKDIR /app
@@ -18,5 +18,7 @@ COPY third_party ./third_party
 COPY models ./models
 
 RUN mkdir -p /tmp/crime_detection/snapshots /tmp/crime_detection/criminal_photos
+
+EXPOSE 7860
 
 CMD sh -c "uvicorn backend.api:app --host 0.0.0.0 --port ${PORT}"

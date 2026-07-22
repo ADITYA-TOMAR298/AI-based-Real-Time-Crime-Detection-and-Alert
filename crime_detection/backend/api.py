@@ -4,14 +4,15 @@ import os
 from pathlib import Path
 from uuid import uuid4
 import cv2
+import numpy as np
 import threading
 
 from fastapi.middleware.cors import CORSMiddleware
 
-from fastapi import FastAPI, Response, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi import FastAPI, Response, Depends, File, Form, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 
-from backend.config import PHOTO_DIR, PIPELINE_ENABLED, SNAPSHOT_DIR
+from backend.config import CAMERA_SOURCE, PHOTO_DIR, PIPELINE_ENABLED, SNAPSHOT_DIR
 from backend.shared import shared
 
 from fastapi import Depends
@@ -90,6 +91,28 @@ def health():
     return {
         "status": "healthy"
     }
+
+
+@app.websocket("/ws/camera")
+async def browser_camera(websocket: WebSocket):
+    """Receive JPEG frames from a browser-owned webcam.
+
+    A cloud container cannot access a user's physical webcam. The browser keeps
+    ownership and sends low-rate JPEG frames over this secure WebSocket instead.
+    """
+    await websocket.accept()
+    if CAMERA_SOURCE != "browser" or pipeline is None:
+        await websocket.close(code=1008, reason="Browser webcam input is not enabled")
+        return
+    try:
+        while True:
+            encoded_frame = await websocket.receive_bytes()
+            frame = cv2.imdecode(np.frombuffer(encoded_frame, np.uint8), cv2.IMREAD_COLOR)
+            if frame is not None:
+                pipeline.camera.push_frame(frame)
+    except WebSocketDisconnect:
+        if pipeline and pipeline.camera.browser_source:
+            shared.camera_connected = False
 
 
 @app.post("/users/onboarding")
